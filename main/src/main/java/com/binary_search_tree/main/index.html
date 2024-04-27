@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Search Tree Application</title>
+</head>
+<body>
+    <h1>Binary Search Tree Application</h1>
+
+    <h2>Enter Numbers</h2>
+    <form id="numbersForm">
+        <label for="numbersInput">Enter numbers (separated by spaces):</label><br>
+        <input type="text" id="numbersInput" name="numbersInput" required><br><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <h2>Previous Input Numbers</h2>
+    <ul id="previousInputNumbers"></ul>
+
+    <h2>Previous Tree Structures</h2>
+    <ul id="previousTreeStructures"></ul>
+
+    <script>
+        // Function to handle form submission
+        document.getElementById("numbersForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent default form submission
+            const numbersInput = document.getElementById("numbersInput").value;
+            processNumbers(numbersInput);
+        });
+
+        // Function to process numbers input
+        function processNumbers(numbers) {
+            fetch("http://localhost:8080/api/enter-numbers?numbers=" + encodeURIComponent(numbers), {
+                method: "POST"
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert(data); // Show response message
+                document.getElementById("numbersInput").value = ""; // Clear input field
+                loadPreviousInputNumbers(); // Refresh previous input numbers list
+                loadPreviousTreeStructures(); // Refresh previous tree structures list
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+            });
+        }
+
+        // Function to load previous input numbers from the server
+        function loadPreviousInputNumbers() {
+            fetch("http://localhost:8080/api/previous-inputs")
+            .then(response => response.json())
+            .then(data => {
+                const previousInputNumbersList = document.getElementById("previousInputNumbers");
+                previousInputNumbersList.innerHTML = ""; // Clear previous list items
+                data.forEach(inputNumbers => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = inputNumbers.numbers;
+                    previousInputNumbersList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        // Function to load previous tree structures from the server
+        function loadPreviousTreeStructures() {
+            fetch("http://localhost:8080/api/previous-trees")
+            .then(response => response.json())
+            .then(data => {
+                const previousTreeStructuresList = document.getElementById("previousTreeStructures");
+                previousTreeStructuresList.innerHTML = ""; // Clear previous list items
+                data.forEach(treeStructure => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = treeStructure.structure;
+                    previousTreeStructuresList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        // Load previous input numbers and tree structures on page load
+        window.onload = function() {
+            loadPreviousInputNumbers();
+            loadPreviousTreeStructures();
+        };
+    </script>
+</body>
+</html>
